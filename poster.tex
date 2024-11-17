@@ -1,0 +1,321 @@
+% Gemini theme
+% https://github.com/anishathalye/gemini
+
+\documentclass[final]{beamer}
+
+% ====================
+% Packages
+% ====================
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[size=custom,width=120,height=72,scale=1.0]{beamerposter}
+\usetheme{gemini}
+\usecolortheme{mcmaster}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.14}
+\usepackage{anyfontsize}
+\usepackage{pdfpages}
+
+\newcommand{\Z}{\mathbb{Z}}
+
+% ====================
+% Lengths
+% ====================
+
+% If you have N columns, choose \sepwidth and \colwidth such that
+% (N+1)*\sepwidth + N*\colwidth = \paperwidth
+\newlength{\sepwidth}
+\newlength{\colwidth}
+\setlength{\sepwidth}{0.02\paperwidth}
+\setlength{\colwidth}{0.225\paperwidth}
+
+\newcommand{\separatorcolumn}{\begin{column}{\sepwidth}\end{column}}
+
+% ====================
+% Title
+% ====================
+
+\title{Algebraic Coding Theory}
+
+\author{Zitong Gu}
+
+\institute[shortinst]{McMaster University}
+
+% ====================
+% Footer (optional)
+% ====================
+
+% \footercontent{
+%   \href{https://www.example.com}{https://www.example.com} \hfill
+%   ABC Conference 2025, New York --- XYZ-1234 \hfill
+%   \href{mailto:alyssa.p.hacker@example.com}{alyssa.p.hacker@example.com}}
+% (can be left out to remove footer)
+
+% ====================
+% Logo (optional)
+% ====================
+
+% use this to include logos on the left and/or right side of the header:
+% \logoright{\includegraphics[height=7cm]{logo1.pdf}}
+% \logoleft{\includegraphics[height=7cm]{logo2.pdf}}
+
+% ====================
+% Body
+% ====================
+
+\begin{document}
+
+\begin{frame}[t]
+\begin{columns}[t]
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Motivation/Introduction}
+    % The essence of coding theory lies in ensuring the integrity of information transmitted across unreliable channels
+    %  , which could be affected by physical interference. While the channel's behavior is beyond our 
+    %  control, coding theory enables the structuring and 
+    %  encoding of information at the source and its proper 
+    %  interpretation at the sink. By integrating redundancy into the message, 
+    %   coding theory allows for the original information to be 
+    %   reconstructed even when part of the message is corrupted 
+    %   or lost. 
+
+    The discipline of coding theory was initiated in the paper 
+    ``A Mathematical theory of communication'' written by 
+    Claude Shannon, in which he stated that \textbf{the fundamental problem of communication is that of reproducing at
+    one point either exactly or approximately a message selected at
+    another point.} The main goal of coding theory is finding codes with resonalble information content and resonable error-contolling ability.
+    \begin{figure}[t]
+      \centering
+      \includegraphics[width=.7\linewidth]{Shannon_model_of_communication.pdf}
+      \caption{Shannon's model of communication}
+    \end{figure}
+    \begin{exampleblock}{Repetition Code}
+      Suppose we would like to send a 1 to signify ``yes'' and a 0 to signify ``no''.
+    If we simply send one bit, then there is a chance that noise, due to physical interference, 
+    will corrupt that bit and an unintended message will be received. A simple solution
+    is to use a \textit{repetition code}: instead of sending a single bit, we send 11111 to represent
+    1 and 00000 to represent 0, where 11111 and 00000 are called codewords and 1 and 0 are called message
+    words. We will assume \textit{nearset neighbour decoding} in this example, that is, the receiver decodes
+    a received binary 5-tuple as the cloest codeword. For instance, suppose that 11111 is transmitted
+    and 10101 (two errors occured), then 10101 is decoded as 11111 intsead of 00000 since there are more
+    1s than 0s.  
+    \end{exampleblock}
+  \end{block}
+
+  \vspace{-16mm}
+
+  \begin{block}{Basics}
+
+    A code is an $(n,m)$-\textbf{block code} if the information that is to be coded can be divided into blocks of $m$ binary digits, each of which can be endoded into $n$ binary digits. An $(n, m)$-block code consists of an \textbf{encoding fucntion} $E: \Z_{2}^m \to \Z_{2}^n$ and a \textbf{decoding function} $D: \Z_{2}^n \to \Z_{2}^m$. We call an image of $E$ a \textbf{codeword}. 
+    
+    The \textbf{Hamming weight} of a codeword $w(\textbf{c})$ is the number of nonzero components in the codeword. The \textbf{Hamming distance} of two codewords $\textbf{x}$ and $\textbf{y}$, denoted by $d(\textbf{x},\textbf{y})$ is the Hamming weight of of the vector difference $\textbf{x} - \textbf{y}$, i.e., $d(\textbf{x},\textbf{y}) = w(\textbf{x} - \textbf{y})$. The \textbf{minimum distance} for a code is the minimum of all distances $d(\textbf{x},\textbf{y})$ of two distinct codewords. 
+    The Hamming distance is a \textit{metric} on the space of all binary $n$-tuples, i.e.,
+    for any $\textbf{x}, \textbf{y}, \textbf{z} \in \Z_2^n$, the follwing properties are satisfied:
+    % \begin{enumerate}
+      $d(\textbf{x}, \textbf{x}) = 0$,
+      $d(\textbf{x},\textbf{y}) = d(\textbf{y}, \textbf{x})$,
+      and $d(\textbf{x},\textbf{z}) \leq d(\textbf{x},\textbf{y}) + d(\textbf{y},\textbf{z})$.
+    % \end{enumerate}
+
+    The following notation is popular in coding theory: 
+    A $(n, M, d)$ code that has minimum distance $d$ and consist 
+    of $M$ codewords, all of length $n$. The goal is to develop codes that strike
+    a balance between having small $n$ (for fast transmission of messages), large $M$
+    (to enable transmission of a wide variety of messages), and large $d$ (to detect
+    many errors). We state a fact that will be proved later: A large minimum distance $d$ of a code is beneficial for error-controlling.
+    But note that a large minimum distance requires lengthy codewords, which implies lower transmission rate. 
+  
+  \vspace{2mm}
+
+  \end{block}
+
+  % \begin{alertblock}{A highlighted block}
+
+  %   This block catches your eye, so \textbf{important stuff} should probably go
+  %   here.
+
+  % \end{alertblock}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  % \begin{exampleblock}{Transmission of photographs from deep-space}
+  %   In the Mariner 1969 Mission, a special code called Reed-Muller code was used to send photographs of Mars to Earth. 
+  %   In order to transmit a picture, each pixel is assigned a number representing its degree of blackness, say in a scale of 0 to 63. 
+  %   These numbers are expressed in the binary system, so each number is a binary 6-tuple. The 6-tuples are then encoded using a [32, 64, 16] Reed-Muller code. 
+  %   This code has minimum distance $d = 16$ and so can correct at most 7 errors and detect at most 15 errors. 
+  % \end{exampleblock}
+
+  In order to find the minimum distance, we would have compute all possible distances between two codewords, 
+  this is time consuming. If we add additional structure to our codes, we would be able 
+  to develop efficient techniques for encoding, decoding, and 
+  error-control. One way to accomplish this is to require that 
+  the code is a group. A \textbf{group code} is a code that is 
+  also a subgroup of $\Z_2^n$. To check that a code is a group 
+  code, we need only verify that the code is closed under addition. 
+
+  \vspace{6mm}
+
+  \begin{alertblock}{Theorem}
+    \begin{itemize}
+      \item A code $C$ with a minimum distance $d = 2n+1$ can correct up to $n$ errors and detect up to $2n$ errors. 
+            
+            \noindent \textbf{\textit{Proof.}} Suppose that a codeword $\textbf{x}$ is transmitted and the word $\textbf{y}$ is received with at most $n$ error. Then $d(\textbf{x},\textbf{y}) \leq n$. Let $\textbf{z} \neq \textbf{x}$ be a codeword. Then $$2n + 1 \leq d(\textbf{x},\textbf{z}) \leq d(\textbf{x},\textbf{y}) + d(\textbf{y},\textbf{z}) \leq n + d(\textbf{y},\textbf{z}).$$ Hence, $d(\textbf{y},\textbf{z}) \geq n + 1$ and $\textbf{y}$ should be correctly decoded as $\textbf{x}$. Now suppose that $\textbf{x}$ is transmitted and $\textbf{y}$ is received with at least one error and at most $2n$ error, i.e., $1 \leq d(\textbf{x},\textbf{y}) \leq 2n$. Then $\textbf{y}$ cannot be a codeword since the minimum distance is $2n+1$. Hence, the code can detect up to $2n$ errors. 
+      \item Let $d_{\min}$ be the minimum distance for a group code $C$. Then $d_{\min}$ is the minimum weight of all the nonzero codewords in $C$. That is, $d_{\min} = \min\{w(\textbf{x}) : \textbf{x} \neq \textbf{0}\}.$
+    \end{itemize}
+  \end{alertblock}
+
+  \vspace{-8mm}
+  
+  \begin{block}{Linear Code}
+
+    Now we have reduced the problem of finding ``good'' codes to that of generating group codes. One easy way to generate group codes is to employ matrix theory. 
+    A code is a \textbf{linear code} if it is determined by the null space of some matrix $H \in \mathbb{M}_{m \times n}(\Z_2)$. A linear code is also a group code.
+
+    Given a matrix $H$ in $\mathbb{M}_{m \times n}(\Z_2)$, we can find the code generated by computing the null space of $H$. However, we want a systematic way of generating linear codes as well as fast methods of decoding. The codewords of a code generated by $H$ can be computed efficiently by the \textit{generator matrix} of the code. The procedure is described in the following example: 
+
+    \begin{exampleblock}{A Hamming code denerated by a matrix}
+      Let $H$ be an $m \times n$ matrix over $\Z_2$, where the $i$-th column is the number $i$ written in binary with $m$ bits. The null space of such a matrix is called a \textbf{Hamming code}. Consider $$H = \begin{bmatrix}
+        0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+        0 & 1 & 1 & 0 & 0 & 1 & 1 \\
+        1 & 0 & 1 & 0 & 1 & 0 & 1
+      \end{bmatrix} \sim \begin{bmatrix}
+        0 & 1 & 1 & 1 & 1 & 0 & 0 \\
+        1 & 0 & 1 & 1 & 0 & 1 & 0 \\
+        1 & 1 & 0 & 1 & 0 & 0 & 1
+      \end{bmatrix} = [A \mid I_3].$$ The \textbf{generator matrix} associated with $H$ is $$G = \bigg[ \dfrac{I_4}{A} \bigg] = \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        0 & 0 & 1 & 0 \\
+        0 & 0 & 0 & 1 \\
+        0 & 1 & 1 & 1 \\
+        1 & 0 & 1 & 1 \\
+        1 & 1 & 0 & 1
+      \end{bmatrix}.$$
+      Since $H(G\textbf{x}) = (HG)\textbf{x} = \textbf{0}$, an easy way to compute Null($H$) is with the generator matrix $G$ :
+
+      \vspace{2mm}
+
+      \begin{table}[h!]
+        \centering
+        \begin{tabular}{cc}
+          \hline
+          Message Word \textbf{x} & Codeword $G\textbf{x}$ \\
+          \hline
+          0000 & 0000000 \\
+          0001 & 0001111 \\
+          \dots & \dots \\
+          1111 & 1111111 \\
+          \hline
+        \end{tabular}
+      \end{table}
+
+      The generated code is a linear $[7, 16, 3]$ code. From the previous theorems, this code can correct at most $1$ error and detect at most $2$ errors. 
+    \end{exampleblock}
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Efficient Decoding}
+    We now are able to generate linear codes that correct and detect errors easily, but it is still a time-consuming process to decode a received $n$-tuple and determine which is the closest codeword. Suppose a codeword $\textbf{x}$ of a code $C$ is transmitted and a $n$-tuple $\textbf{y}$ is received, the decoder should produce the codeword that minimize the distance from $\textbf{y}$. That is, $$D(\textbf{y}) = \operatorname*{argmin}_{\textbf{z} \in C} d(\textbf{z}, \textbf{y}).$$ However, computing all possible distances in a large code is not ideal. Fortunately, group theory provided a solution for decoding messages. We will use the fact that a linear group $C$ is a subgroup of $\Z_2^n$. In particular, we show how cosets of $C$ can be used to decode a linear code. 
+
+    \vspace{4mm}
+
+    \begin{exampleblock}{Coset Decoding}
+      Let $C$ be the (5, 2) code $\{00000, 10110, 01101, 11011\}$, which is a subgroup of $\Z_2^5$.
+      From the elements of $\Z_2^5$ that are not in $C$, choose one with the smallest weight, say $e_1 = 10000$.
+      Now we obtain a coset $e_1+C$. From the elements of $\Z_2^5$ that are not in $C$ or $e_1+C$, choose one with the smallest weight, say $e_2 = 01000$. 
+      Then list the coset $e_2+C$. Perform this procedure until all the cosets are listed. The result is as follows:
+      \begin{table}[h!]
+        \centering
+        \begin{tabular}{cc}
+          \hline
+          Coset Representative & Coset \\
+          \hline
+          $C$ & \{00000, 10110, 01101, 11011\} \\
+          10000 + $C$ & \{10000, 00110, 11101, 01011\} \\
+          00100 + $C$ & \{00100, 10010, 01001, 11111\} \\
+          00010 + $C$ & \{00010, 10100, 01111, 11001\} \\
+          00001 + $C$ & \{00001, 10111, 01100, 11010\} \\
+          11000 + $C$ & \{11000, 01110, 10101, 00011\} \\
+          10001 + $C$ & \{10001, 00111, 11100, 01010\} \\
+          \hline
+        \end{tabular}
+        \caption{Cosets of $C$}
+      \end{table}
+      Suppose that $\textbf{x}$ is transmitted and $\textbf{y}$ is received. Let $\textbf{r}$ denoted the transmission error, then $\textbf{x} = \textbf{y} + \textbf{r}$ or $\textbf{y} = \textbf{r} + \textbf{x}$.
+      This is saying that $\textbf{y}$ is in the coset $\textbf{r} + C$. The decoding rule is as follows: Decode a received word $\textbf{y}$ as the codeword at the top of the column in which $\textbf{y}$ apprears.
+      For example, $00111$ in the last row is decoded as $10110$. 
+
+      The cosets of $C$ serves as the role of a look-up table. While the look-up
+      table can faster the process of decoding, there is a potential problem with this method: 
+      We might have to examine every coset for the received codeword. 
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\begin{column}{\colwidth}
+
+  \begin{block}{Cyclic Code}
+    \textbf{Definition.} Let $\phi: \Z_2^k \to \Z_2^n$ be a binary [n, k] linear block code.
+    Then $\phi$ is a \textbf{cyclic code} if for every codeword $(a_0, a_1, \dots, a_{n-1})$,
+    the shifted n-tuple $(a_{n-1}, a_0, \dots, a_{n-2})$ is also a codeword.
+
+    Cyclic codes are arrtactive, because encoding can be implemented easily on a computer
+    using shift register, and cyclic codes have many good algebraic properties that provide
+    practical decoding methods. 
+
+    A codeword of a cyclic code is associated with a ploynomial through the isomorphism:
+    $$\rho : \Z_2^n \to \Z_2[x]/\langle x^n - 1 \rangle, \quad \rho(a_0, a_1, \dots, a_{n-1}) = \sum_{i = 0}^{n-1} a_ix^i.$$
+    Note that $\Z_2[x]/\langle x^n - 1 \rangle$ is a ring of polynomials of the form 
+    $$p(x) = a_0 + a_1x + \dots + a_{n-1}x^{n-1}$$ such that $x^n = 1$. Now a cyclic shift
+    of an n-tuple can be described by polynomial multiplication: Let $f(x) = a_0 + a_1x + \dots + a_{n-1}x^{n-1} \in \Z_2[x]/\langle x^n - 1 \rangle$,
+    then $$xf(x) = a_{n-1} + a_0x + a_1x^2 + \dots a_{n-2}x^{n-1},$$ which corresponds to the codeword $(a_{n-1}, a_0, \dots, a_{n-2})$. 
+    We now come to an important characterization of cyclic codes: A linear code $C \subset Z_2^n$
+    is cyclic if and only if it is an ideal in $R_n = \Z_2[x]/\langle x^n - 1 \rangle$. 
+
+    \begin{alertblock}{Construction of Cyclic Codes}
+      We can construct a cyclic code by finding its corresponding ideal in $R_n$. It is easy to describe the ideals in $R_n$ since every ideal $I$ in $R_n$ is principal.
+      So, $I = \langle g(x) \rangle$ for some unique monic polynomial $g(x) \in Z_2[x]$. Also, by the Correspondence Theorem,
+      every ideal $I = \langle g(x) \rangle$ in $R_n$ contains $\langle x^n - 1 \rangle$ and so $g(x)$ must divide $x^n-1$.
+      Therefore, every ideal $C$ in $R_n$ is of the form $$C = \langle g(x) \rangle = \{p(x)g(x) : p(x) \in R_n \text{ and } g(x) \mid (x^n-1) \in Z_2[x]\}.$$ 
+      If a cyclic code $C = \langle g(x) \rangle$, then we call $g(x)$ the generator polynomial of $C$.
+      Now we are able to present an example of constructing cyclic codes of length 3. 
+      All we need to do is to find all the factors of $x^3-1$. Write $$x^3-1 = (x-1)(x^2+x+1)$$ with both factors are irreducible.
+    \end{alertblock}
+
+  \end{block}
+
+
+  \begin{block}{References}
+
+    \nocite{*}
+    \footnotesize{\bibliographystyle{plain}\bibliography{poster}}
+
+  \end{block}
+
+\end{column}
+
+\separatorcolumn
+
+\end{columns}
+\end{frame}
+
+\end{document}
